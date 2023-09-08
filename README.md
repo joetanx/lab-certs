@@ -318,18 +318,12 @@ WXlkhegYmdXOQc9JAAAAAAEC
 
 #### 4.1. EDDSA:
 
-##### 4.1.1. PKCS8 to PKCS1:
+PKCS1 doesn't seem to be supported for EDDSA
 
 ```console
 [root@foxtrot ~]# openssl pkey -in ed25519_pkcs8.key -traditional -out ed25519_pkcs1.key
 80CBA973187F0000:error:0480006E:PEM routines:PEM_write_bio_PrivateKey_traditional:unsupported public key type:crypto/pem/pem_pkey.c:345:
 [root@foxtrot ~]# openssl pkey -in ed25519_pkcs8.key
-```
-
-##### 4.1.2. PKCS1 to PKCS8:
-
-```console
-
 ```
 
 #### 4.2. ECDSA:
