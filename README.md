@@ -123,8 +123,8 @@ WXlkhegYmdXOQc9JAAAAAAEC
 #### 2.1. EDDSA:
 
 ```console
-[root@foxtrot ~]# openssl genpkey -algorithm ed25519 -out ed25519.key
-[root@foxtrot ~]# cat ed25519.key
+[root@foxtrot ~]# openssl genpkey -algorithm ed25519 -out ed25519_pkcs8.key
+[root@foxtrot ~]# cat ed25519_pkcs8.key
 -----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIJyWodKqZsYLw/kFFTJAGw8hLg0PW9KMb1IlbZ8QShnG
 -----END PRIVATE KEY-----
@@ -133,8 +133,8 @@ MC4CAQAwBQYDK2VwBCIEIJyWodKqZsYLw/kFFTJAGw8hLg0PW9KMb1IlbZ8QShnG
 #### 2.2. ECDSA:
 
 ```console
-[root@foxtrot ~]# openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 > ecdsa.key
-[root@foxtrot ~]# cat ecdsa.key
+[root@foxtrot ~]# openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out ecdsa_pkcs8.key
+[root@foxtrot ~]# cat ecdsa_pkcs8.key
 -----BEGIN PRIVATE KEY-----
 MIG2AgEAMBAGByqGSM49AgEGBSuBBAAiBIGeMIGbAgEBBDBbLlWroJ85KnKFfa34
 P4k3WtLRzfUV/MbFsQc88Kr1+kvQqhk/kMsBh/3XjVGLJeehZANiAASL2cJukCqs
@@ -146,10 +146,10 @@ w4ZYLU8ASlxgCze31Xgh/3LWx+3CziCDyr8IxGt2trOr0Hu4tMri+fySfCITXp8c
 #### 2.3. RSA:
 
 ```console
-[root@foxtrot ~]# openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:2048 > rsa.key
+[root@foxtrot ~]# openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:2048 -out rsa_pkcs8.key
 ............+..+.+...........+.+...+.....+.+.....+...+..........+...+...+.........+..+...+..........+........+...+....+...........+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*..+......+...+..+....+...........+.+...+..+...+.+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*..+.....+...............+.+......+..+...+....+....................+.+..............+.+...+..............+...............+.+......+........+.......+........+.+.................+.......+..+....+............+..+.......+..............+.+...+......+......+...+..+....+...........+.+...+............+..+......+.+.....+.........+......+..................+.+..+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 .+..........+...............+......+..+.......+..............................+..+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*..+...+............+...+....+......+.....+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*............+...+...+......+...............+......+.........+.+...+..............+......+.........+.+..+...+.+.....+..........+.....+...+......+............+.......+..+......+...................+...+.....+...+....+......+..+.+..+.........................+..+......+....+..+.+............+..+....+.....+.......+.....+.........+...+..........+........+.......+...+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-[root@foxtrot ~]# cat rsa.key
+[root@foxtrot ~]# cat rsa_pkcs8.key
 -----BEGIN PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDfm0rVrGvoflMp
 IuDcn+RPrnEIDLpTmSUVJdJa2oWbp66RCPkra2bNqrTRfvqCepo8TsNtZwozaimH
@@ -184,34 +184,27 @@ yCQ1DMtlH6fxeRhSisvWwoxR
 
 #### 3.1. EDDSA:
 
-##### 3.1.1. OpenSSH to PKCS8
-
 > [!Note]
 > 
 > OpenSSH doesn't currently support reading or writing Ed25519 keys in any format other than the OpenSSH native key format.
 > 
 > https://bugzilla.mindrot.org/show_bug.cgi?id=3195
 
-##### 3.1.2. PKCS8 to OpenSSH
-
-```console
-[root@foxtrot ~]# cp ed25519.key id_ed25519
-[root@foxtrot ~]# ssh-keygen -e -p -f id_ed25519
-Failed to load key id_ed25519: invalid format
-```
+- `ssh-keygen -e -m PKCS8 -p -f ed25519_pkcs8.key` does nothing
+- `ssh-keygen -e -p -f id_ed25519` throws error: `Failed to load key id_ed25519: invalid format`
 
 #### 3.2. ECDSA:
 
 ##### 3.2.1. OpenSSH to PKCS8
 
 ```console
-[root@foxtrot ~]# mv id_ecdsa id_ecdsa_pkcs8
-[root@foxtrot ~]# ssh-keygen -e -m PKCS8 -p -f id_ecdsa_pkcs8
+[root@foxtrot ~]# mv id_ecdsa ecdsa_pkcs8.key
+[root@foxtrot ~]# ssh-keygen -e -m PKCS8 -p -f ecdsa_pkcs8.key
 Key has comment ''
 Enter new passphrase (empty for no passphrase):
 Enter same passphrase again:
 Your identification has been saved with the new passphrase.
-[root@foxtrot ~]# cat id_ecdsa_pkcs8
+[root@foxtrot ~]# cat ecdsa_pkcs8.key
 -----BEGIN PRIVATE KEY-----
 MIG2AgEAMBAGByqGSM49AgEGBSuBBAAiBIGeMIGbAgEBBDA/6zziHg/N+sfMIgpn
 C8b4TbNBsyIDtaHrlx2AheM4sS401L9FGDb5HOPKURtgYZ6hZANiAAQJImk1ZwYN
@@ -223,7 +216,7 @@ oJYGpnotVoLgKI1aL1HznV8kEZoSjvrNQlwjETHhv0gBXBsz6v3v/so=
 ##### 3.2.2. PKCS8 to OpenSSH
 
 ```console
-[root@foxtrot ~]# mv id_ecdsa_pkcs8 id_ecdsa
+[root@foxtrot ~]# mv ecdsa_pkcs8.key id_ecdsa
 [root@foxtrot ~]# ssh-keygen -e -p -f id_ecdsa
 Enter new passphrase (empty for no passphrase):
 Enter same passphrase again:
@@ -246,13 +239,13 @@ UYNvkc48pRG2BhngAAAAA=
 ##### 3.3.1. OpenSSH to PKCS8
 
 ```console
-[root@foxtrot ~]# mv id_rsa id_rsa_pkcs8
-[root@foxtrot ~]# ssh-keygen -e -m PKCS8 -p -f id_rsa_pkcs8
+[root@foxtrot ~]# mv id_rsa rsa_pkcs8.key
+[root@foxtrot ~]# ssh-keygen -e -m PKCS8 -p -f rsa_pkcs8.key
 Key has comment ''
 Enter new passphrase (empty for no passphrase):
 Enter same passphrase again:
 Your identification has been saved with the new passphrase.
-[root@foxtrot ~]# cat id_rsa_pkcs8
+[root@foxtrot ~]# cat rsa_pkcs8.key
 -----BEGIN PRIVATE KEY-----
 MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCsQNjbdU51OESR
 TFpym9ptNxWqry0W9nCfGsCDOo+uarXLyWkpO7g19Jl1l7fyIQ4MpFK8sQPW9mLQ
@@ -286,7 +279,7 @@ BpKNnXwSHV5rlooac05FAj8=
 ##### 3.3.2. PKCS8 to OpenSSH
 
 ```console
-[root@foxtrot ~]# mv id_rsa_pkcs8 id_rsa
+[root@foxtrot ~]# mv rsa_pkcs8.key id_rsa
 [root@foxtrot ~]# ssh-keygen -e -p -f id_rsa
 Enter new passphrase (empty for no passphrase):
 Enter same passphrase again:
@@ -328,7 +321,7 @@ WXlkhegYmdXOQc9JAAAAAAEC
 ##### 4.1.1. PKCS8 to PKCS1:
 
 ```console
-[root@foxtrot ~]# openssl pkey -in ed25519_pkcs8.key -traditional > ed25519_pkcs1.key
+[root@foxtrot ~]# openssl pkey -in ed25519_pkcs8.key -traditional -out ed25519_pkcs1.key
 80CBA973187F0000:error:0480006E:PEM routines:PEM_write_bio_PrivateKey_traditional:unsupported public key type:crypto/pem/pem_pkey.c:345:
 [root@foxtrot ~]# openssl pkey -in ed25519_pkcs8.key
 ```
@@ -344,8 +337,8 @@ WXlkhegYmdXOQc9JAAAAAAEC
 ##### 4.2.1. PKCS8 to PKCS1:
 
 ```console
-[root@foxtrot ~]# openssl pkey -in ecdsa_pkcs8.key -traditional > ecdsa_pkcs1.key
-[root@foxtrot ~]# cat id_ecdsa_pkcs1
+[root@foxtrot ~]# openssl pkey -in ecdsa_pkcs8.key -traditional -out ecdsa_pkcs1.key
+[root@foxtrot ~]# cat ecdsa_pkcs1.key
 -----BEGIN EC PRIVATE KEY-----
 MIGkAgEBBDA/6zziHg/N+sfMIgpnC8b4TbNBsyIDtaHrlx2AheM4sS401L9FGDb5
 HOPKURtgYZ6gBwYFK4EEACKhZANiAAQJImk1ZwYNIgyzkRSCc4zRix7Rb4jQ0uhF
@@ -371,8 +364,8 @@ oJYGpnotVoLgKI1aL1HznV8kEZoSjvrNQlwjETHhv0gBXBsz6v3v/so=
 ##### 4.3.1. PKCS8 to PKCS1:
 
 ```console
-[root@foxtrot ~]# openssl pkey -in rsa_pkcs8.key -traditional > rsa_pkcs1.key
-[root@foxtrot ~]# cat id_rsa_pkcs1
+[root@foxtrot ~]# openssl pkey -in rsa_pkcs8.key -traditional -out rsa_pkcs1.key
+[root@foxtrot ~]# cat rsa_pkcs1.key
 -----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEArEDY23VOdThEkUxacpvabTcVqq8tFvZwnxrAgzqPrmq1y8lp
 KTu4NfSZdZe38iEODKRSvLED1vZi0DFWcja+SOMSQEJrMc1gLt/JqxDLh9kktt3W
