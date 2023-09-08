@@ -1,4 +1,24 @@
-## Key formats: OpenSSH, PKCS1 and PKCS8
+## 4. Miscellaneous certificate commands
+
+|Usage|Command|
+|---|---|
+|Generate SSH key pair|EDDSA: `ssh-keygen -t ed25519 -f id_ed25519 -C "" -N ""`<br>ECDSA: `ssh-keygen -t ecdsa -b 384 -f id_ecdsa -C "" -N ""`<br>RSA: `ssh-keygen -b 2048 -f id_rsa -C "" -N ""`|
+|Generate PKI key pair|EDDSA: `openssl genpkey -algorithm ed25519 -out ed25519.key`<br>ECDSA: `openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out ecdsa.key`<br>RSA: `openssl genpkey -algorithm rsa -pkeyopt rsa_keygen_bits:2048 -out rsa.key`|
+|Convert key from OpenSSH to PKCS#8|`ssh-keygen -e -m PKCS8 -p -f openssh_to_pkcs8.key`<br>(Converted key is written in-place to the file specified)|
+|Convert key from PKCS#8 to OpenSSH|`ssh-keygen -e -p -f pkcs8_to_openssh.key`<br>(Converted key is written in-place to the file specified)|
+|Convert key from PKCS#8 to PKCS#1|`openssl pkey -in pkcs8.key -traditional -out pkcs1.key`|
+|Convert key from PKCS#1 to PKCS#8|`openssl pkey -in pkcs1.key -out pkcs8.key`|
+|Check live server certifcate|`openssl s_client -connect SERVER:PORT </dev/null 2>/dev/null \| openssl x509 -noout -text`|
+|Check pem certifcate file|`openssl x509 -text -in CERT.pem`|
+|Check private key|`openssl pkey -check -text -in CERT.key`|
+|Check CSR|`openssl req -text -noout -verify -in CERT.csr`|
+|Check PKCS#12 file|`openssl pkcs12 -info -in CERT.pfx -nodes -passin pass:PASSWORD`|
+|Combine cert and files into pkcs12|`openssl pkcs12 -export -out CERT.pfx -inkey CERT.key -in CERT.pem -keysig -passout pass:PASSWORD`|
+|Extract cert from pkcs12|`openssl pkcs12 -in CERT.pfx -nokeys -out CERT.pem`|
+|Extract key from pkcs12|`openssl pkcs12 -in CERT.pfx -nodes -out CERT.key`|
+|Extract public key from private key|`openssl pkey -in CERT.key -pubout`|
+
+<details><summary><h2>Key formats: OpenSSH, PKCS1 and PKCS8</h2></summary>
 
 ### 1. `ssh-keygen` generates keys in OpenSSH format
 
@@ -422,3 +442,5 @@ Und5gOuHHTOmMNLEU3nhMUXJxe89RMhg5PwjpC6gsPsKYgA5b3pChKzroUwqQDR+
 BpKNnXwSHV5rlooac05FAj8=
 -----END PRIVATE KEY-----
 ```
+
+</details>
