@@ -213,6 +213,13 @@ yCQ1DMtlH6fxeRhSisvWwoxR
 - `ssh-keygen -e -m PKCS8 -p -f ed25519_pkcs8.key` does nothing
 - `ssh-keygen -e -p -f id_ed25519` throws error: `Failed to load key id_ed25519: invalid format`
 
+Alternatively, the [sshpk](https://www.npmjs.com/package/sshpk) npm package performs this conversion
+
+|Usage|Command|
+|---|---|
+|Convert key from OpenSSH to PKCS#8|`sshpk-conv -p -t pkcs8 id_eddsa \| tee eddsa.key`|
+|Convert key from PKCS#8 to OpenSSH|`sshpk-conv -p -t ssh eddsa_pkcs8.key \| tee id_eddsa`|
+
 #### 3.2. ECDSA:
 
 ##### 3.2.1. OpenSSH to PKCS8
