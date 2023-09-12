@@ -18,7 +18,7 @@ Generate private key:
 openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out lab_root.key
 ```
 
-Generate self-signed root certificate authority
+Generate self-signed root certificate authority:
 
 ```
 openssl req -x509 -new -nodes -key lab_root.key -sha256 -days 10958 -subj "/CN=Lab Root CA" -out lab_root.pem
@@ -48,12 +48,12 @@ Generate private key:
 openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out lab_issuer.key
 ```
 
-Generate certificate signing request
+Generate certificate signing request:
 
 ```
 openssl req -new -key lab_issuer.key -subj "/CN=Lab Issuer" -out lab_issuer.csr
 ```
-Create config file with parameters `basicConstraints=critical,CA:true,pathlen:0` to designate certificate as certificate authority
+Create config file with parameters `basicConstraints=critical,CA:true,pathlen:0` to designate certificate as certificate authority:
 
 > [!Note]
 > 
@@ -63,7 +63,7 @@ Create config file with parameters `basicConstraints=critical,CA:true,pathlen:0`
 echo "basicConstraints=critical,CA:true,pathlen:0" > lab_issuer.cnf
 ```
 
-Generate intermediate certificate authority
+Generate intermediate certificate authority:
 
 ```
 openssl x509 -req -in lab_issuer.csr -CA lab_root.pem -CAkey lab_root.key -CAcreateserial -days 10958 -sha256 -out lab_issuer.pem -extfile lab_issuer.cnf
@@ -77,13 +77,13 @@ Generate private key:
 openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out hq.ark.vx.key
 ```
 
-Generate certificate signing request
+Generate certificate signing request:
 
 ```
 openssl req -new -key hq.ark.vx.key -subj "/CN=hq.ark.vx" -out hq.ark.vx.csr
 ```
 
-Create config file with the required Subject Alternative Names (SANs)
+Create config file with the required Subject Alternative Names (SANs):
 
 > [!Note]
 > 
@@ -93,19 +93,19 @@ Create config file with the required Subject Alternative Names (SANs)
 echo "subjectAltName=DNS:ark.vx,DNS:hq.ark.vx,IP:192.168.17.201" > hq.ark.vx.cnf
 ```
 
-Generate the certificate
+Generate the certificate:
 
 ```
 openssl x509 -req -in hq.ark.vx.csr -CA lab_issuer.pem -CAkey lab_issuer.key -CAcreateserial -days 10958 -sha256 -out hq.ark.vx.pem -extfile hq.ark.vx.cnf
 ```
 
-Export certificate and key files to pkcs12 bundle
+Export certificate and key files to pkcs12 bundle:
 
 ```
 openssl pkcs12 -export -out hq.ark.vx.pfx -inkey hq.ark.vx.key -in hq.ark.vx.pem -certfile lab_issuer.pem -keysig -passout pass:cyberark
 ```
 
-Concatenate the intermediate CA into the certificate file
+Concatenate the intermediate CA into the certificate file:
 
 ```
 cat lab_issuer.pem >> hq.ark.vx.pem
