@@ -1,4 +1,117 @@
-## 4. Miscellaneous certificate commands
+## 1. Self-signed certificate chain
+
+This repository is a collection of certificates used in my lab environment.
+
+The commands used to generate these certificates are listed below.
+
+> [!Warning]
+> 
+> The certificates are generated with a validity of 10,958 days (30 years)
+
+An example on generating certificates for use with Conjur is here: https://github.com/joetanx/lab-certs/blob/main/conjur.md
+
+### 1.1. Create self-signed root certificate authority
+
+Generate private key:
+
+```
+openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out lab_root.key
+```
+
+Generate self-signed root certificate authority
+
+```
+openssl req -x509 -new -nodes -key lab_root.key -sha256 -days 10958 -subj "/CN=Lab Root CA" -out lab_root.pem
+```
+
+> [!Note]
+> 
+> For a more detailed setup, use a openssl config file
+>
+> Using the below config file with command `openssl req -x509 -new -nodes -key lab_root.key -sha256 -days 10958 -config lab_root.cnf -out lab_root.pem` will generate a similar certificate
+> 
+> ```
+> [ req ]
+> prompt = no
+> distinguished_name = req_distinguished_name
+> [ req_distinguished_name ]
+> commonName = Lab Root CA
+> ```
+> 
+> There is a sample openssl config file at `/etc/pki/tls/openssl.cnf` for reference
+
+### 1.2. Create intermediate certificate authority
+
+Generate private key:
+
+```
+openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out lab_issuer.key
+```
+
+Generate certificate signing request
+
+```
+openssl req -new -key lab_issuer.key -subj "/CN=Lab Issuer" -out lab_issuer.csr
+```
+Create config file with parameters `basicConstraints=critical,CA:true,pathlen:0` to designate certificate as certificate authority
+
+> [!Note]
+> 
+> This command creates a minimal config file, there is a sample openssl config file at `/etc/pki/tls/openssl.cnf` for reference
+
+```
+echo "basicConstraints=critical,CA:true,pathlen:0" > lab_issuer.cnf
+```
+
+Generate intermediate certificate authority
+
+```
+openssl x509 -req -in lab_issuer.csr -CA lab_root.pem -CAkey lab_root.key -CAcreateserial -days 10958 -sha256 -out lab_issuer.pem -extfile lab_issuer.cnf
+```
+
+### 1.3. Create certificates
+
+Generate private key:
+
+```
+openssl genpkey -algorithm ec -pkeyopt ec_paramgen_curve:P-384 -out hq.ark.vx.key
+```
+
+Generate certificate signing request
+
+```
+openssl req -new -key hq.ark.vx.key -subj "/CN=hq.ark.vx" -out hq.ark.vx.csr
+```
+
+Create config file with the required Subject Alternative Names (SANs)
+
+> [!Note]
+> 
+> This command creates a minimal config file, there is a sample openssl config file at `/etc/pki/tls/openssl.cnf` for reference
+
+```
+echo "subjectAltName=DNS:ark.vx,DNS:hq.ark.vx,IP:192.168.17.201" > hq.ark.vx.cnf
+```
+
+Generate the certificate
+
+```
+openssl x509 -req -in hq.ark.vx.csr -CA lab_issuer.pem -CAkey lab_issuer.key -CAcreateserial -days 10958 -sha256 -out hq.ark.vx.pem -extfile hq.ark.vx.cnf
+```
+
+Export certificate and key files to pkcs12 bundle
+
+```
+openssl pkcs12 -export -out hq.ark.vx.pfx -inkey hq.ark.vx.key -in hq.ark.vx.pem -certfile lab_issuer.pem -keysig -passout pass:cyberark
+```
+
+Concatenate the intermediate CA into the certificate file
+
+```
+cat lab_issuer.pem >> hq.ark.vx.pem
+```
+
+## 2. Miscellaneous certificate commands
 
 |Usage|Command|
 |---|---|
