@@ -123,6 +123,7 @@ cat lab_issuer.pem >> hq.ark.vx.pem
 |Convert key from PKCS#1 to PKCS#8|`openssl pkey -in pkcs1.key -out pkcs8.key`|
 |Check live server certifcate|`openssl s_client -connect SERVER:PORT </dev/null 2>/dev/null \| openssl x509 -noout -text`|
 |Check pem certifcate file|`openssl x509 -text -in CERT.pem`|
+|Get fingerprint of pem certifcate file|SHA-1 (default):`openssl x509 -in CERT.pem -fingerprint`<br>SHA-256: `openssl x509 -in CERT.pem -fingerprint -sha256`|
 |Check private key|`openssl pkey -check -text -in CERT.key`|
 |Check CSR|`openssl req -text -noout -verify -in CERT.csr`|
 |Check PKCS#12 file|`openssl pkcs12 -info -in CERT.pfx -nodes -passin pass:PASSWORD`|
